@@ -22,6 +22,8 @@ class UserController {
 
 	async addUser(req, res, next) {
 		const userData = req.body;
+		const avatarUrl = req.file ? req.file.path : null;
+		userData.avatar = avatarUrl;
 		const newUser = await this.userServices.addUser(userData);
 		if (!newUser) {
 			return next(
