@@ -32,7 +32,7 @@ app.use((err, req, res, next) => {
 });
 
 db.sequelize
-	.sync({ force: true })
+	.sync()
 	.then(() => console.log('Database synced'))
 	.catch((err) => console.error('Error syncing database:', err));
 
