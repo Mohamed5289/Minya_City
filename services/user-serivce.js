@@ -18,8 +18,8 @@ class UserService {
 		const user = await this.userRepository.getUserById(userId);
 		return user || null;
 	}
-	async loginUser(email, password) {
-		const user = await this.userRepository.getUserByEmail(email);
+	async loginUser(username, password) {
+		const user = await this.userRepository.getUserByUsername(username);
 		if (!user) return null;
 
 		const isPasswordValid = await hash.comparePassword(password, user.password);

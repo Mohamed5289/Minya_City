@@ -25,8 +25,8 @@ const userController = new UserController(userService, refreshTokenService);
 
 router.route('/').get(userController.paginateUsers);
 router.route('/one').get(userController.getUserByUsername);
-router.route('/refreshToken/t').get(userController.refreshToken);
-router.route('/signOut').get(userController.signout);
+router.route('/refresh-token/t').get(userController.refreshToken);
+router.route('/sign-out').get(userController.signout);
 router
 	.route('/:id')
 	.get(userController.getUserById)
