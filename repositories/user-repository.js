@@ -20,6 +20,12 @@ class UserRepository {
 		});
 	}
 
+	async getUserByUserEmail(email) {
+		return await this.User.findOne({
+			where: { email: email },
+		});
+	}
+
 	async updateUser(userId, updatedData) {
 		return await this.User.update(updatedData, {
 			where: { id: userId },

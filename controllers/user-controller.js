@@ -76,8 +76,8 @@ class UserController {
 	}
 
 	async loginUser(req, res, next) {
-		const { username, password } = req.body;
-		const user = await this.userServices.loginUser(username, password);
+		const { email, password } = req.body;
+		const user = await this.userServices.loginUser(email, password);
 		if (!user) {
 			return next(
 				new ErrorApp(401, 'Invalid email or password', httpStatusText.FAIL),
