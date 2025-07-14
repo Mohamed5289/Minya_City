@@ -20,7 +20,7 @@ class UserRepository {
 		});
 	}
 
-	async getUserByUserEmail(email) {
+	async getUserByEmail(email) {
 		return await this.User.findOne({
 			where: { email: email },
 		});
