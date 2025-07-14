@@ -224,7 +224,7 @@ class UserController {
 			parseInt(limit),
 		);
 
-		if (!paginationResult || paginationResult.data.length === 0) {
+		if (!paginationResult || paginationResult.users.length === 0) {
 			return next(new ErrorApp(404, 'No users found', httpStatusText.FAIL));
 		}
 

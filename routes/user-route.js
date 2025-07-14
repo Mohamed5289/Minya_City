@@ -30,12 +30,11 @@ router.route('/refreshToken/t').get(userController.refreshToken);
 router.route('/login').post(userController.loginUser);
 router.route('/register').post(upload.single('avatar'), userController.addUser);
 router.route('/email/:email').get(userController.getUserByEmail);
+router.route('/paginate').get(userController.paginateUsers);
 router
 	.route('/:id')
 	.get(userController.getUserById)
 	.put(userController.updateUser)
 	.delete(userController.deleteUser);
-
-router.route('/paginate').get(userController.paginateUsers);
 
 module.exports = router;
