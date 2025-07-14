@@ -1,8 +1,9 @@
 const hash = require('../utils/hash-password');
 // services/userServices.js
 class UserService {
-	constructor(userRepository) {
+	constructor(userRepository, refreshTokenRepository) {
 		this.userRepository = userRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 	}
 	async addUser(userData) {
 		const existingUser = await this.userRepository.getUserByEmail(
@@ -21,7 +22,7 @@ class UserService {
 		const user = await this.userRepository.getUserByEmail(email);
 		if (!user) return null;
 
-		const isPasswordValid = await user.comparePassword(password);
+		const isPasswordValid = await hash.comparePassword(password, user.password);
 		if (!isPasswordValid) return null;
 
 		return user;

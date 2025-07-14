@@ -20,6 +20,29 @@ class UserController {
 		this.refreshToken = asyncWrapper(this.refreshToken.bind(this));
 	}
 
+	async createJwtTokenAndRefreshToken(payload) {
+		const refreshToken = generateRefreshToken();
+
+		const token = generateToken({ id: payload.id, email: payload.email });
+
+		const addRefreshTokenForUser = await this.tokenService.addTokenToUser({
+			userId: payload.id,
+			token: refreshToken.token,
+			expiresAt: refreshToken.expires,
+		});
+		if (!addRefreshTokenForUser)
+			throw new ErrorApp(
+				500,
+				'Failed to save refresh token',
+				httpStatusText.ERROR,
+			);
+
+		return {
+			token,
+			refreshToken,
+		};
+	}
+
 	async addUser(req, res, next) {
 		const userData = req.body;
 		const avatarUrl = req.file ? req.file.path : null;
@@ -31,20 +54,10 @@ class UserController {
 			);
 		}
 
-		const refreshToken = generateRefreshToken();
-
-		const token = generateToken({ id: newUser.id, email: newUser.email });
-
-		const addRefreshTokenForUser = await this.tokenService.addTokenToUser({
-			userId: newUser.id,
-			token: refreshToken.token,
-			expiresAt: refreshToken.expires,
+		const { token, refreshToken } = await this.createJwtTokenAndRefreshToken({
+			id: newUser.id,
+			email: newUser.email,
 		});
-
-		if (!addRefreshTokenForUser)
-			return next(
-				new ErrorApp(500, 'Failed to save refresh token', httpStatusText.ERROR),
-			);
 
 		res.cookie('refreshToken', refreshToken.token, {
 			httpOnly: true,
@@ -60,6 +73,37 @@ class UserController {
 			httpStatusText.SUCCESS,
 			{ user: newUser },
 			'User created successfully',
+		);
+	}
+
+	async loginUser(req, res, next) {
+		const { email, password } = req.body;
+		const user = await this.userServices.loginUser(email, password);
+		if (!user) {
+			return next(
+				new ErrorApp(401, 'Invalid email or password', httpStatusText.FAIL),
+			);
+		}
+
+		const { token, refreshToken } = await this.createJwtTokenAndRefreshToken({
+			id: user.id,
+			email: user.email,
+		});
+
+		res.cookie('refreshToken', refreshToken.token, {
+			httpOnly: true,
+			secure: true,
+			sameSite: 'Strict',
+			expires: refreshToken.expires,
+		});
+
+		user.token = token;
+		sendResponse(
+			res,
+			200,
+			httpStatusText.SUCCESS,
+			{ user },
+			'User logged in successfully',
 		);
 	}
 
@@ -86,45 +130,6 @@ class UserController {
 			httpStatusText.SUCCESS,
 			{ token: tokens.jwtToken },
 			'token created successfully',
-		);
-	}
-
-	async loginUser(req, res, next) {
-		const { email, password } = req.body;
-		const user = await this.userServices.loginUser(email, password);
-		if (!user) {
-			return next(
-				new ErrorApp(401, 'Invalid email or password', httpStatusText.FAIL),
-			);
-		}
-
-		const refreshToken = generateRefreshToken();
-
-		const token = generateToken({ id: user.id, email: user.email });
-
-		const addRefreshTokenForUser = await this.tokenService.addTokenToUser({
-			userId: user.id,
-			token: refreshToken.token,
-			expiresAt: refreshToken.expires,
-		});
-		if (!addRefreshTokenForUser)
-			return next(
-				new ErrorApp(500, 'Failed to save refresh token', httpStatusText.ERROR),
-			);
-
-		res.cookie('refreshToken', refreshToken.token, {
-			httpOnly: true,
-			secure: true,
-			sameSite: 'Strict',
-			expires: tokens.refreshToken.expires,
-		});
-
-		sendResponse(
-			res,
-			200,
-			httpStatusText.SUCCESS,
-			{ user, token },
-			'User logged in successfully',
 		);
 	}
 
