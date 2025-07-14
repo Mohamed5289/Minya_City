@@ -7,27 +7,16 @@ class UserRepository {
 		return await this.User.create(userData);
 	}
 
-	async getUserById(userId) {
-		return await this.User.findByPk(userId, {
+	async getUserById(id) {
+		return await this.User.findByPk(id, {
 			attributes: { exclude: ['password'] },
-		});
-	}
-
-	async getAllUsers() {
-		return await this.User.findAll({
-			attributes: { exclude: ['password'] },
-		});
-	}
-
-	async getUserByEmail(email) {
-		return await this.User.findOne({
-			where: { email: email },
 		});
 	}
 
 	async getUserByUsername(username) {
 		return await this.User.findOne({
 			where: { username: username },
+			attributes: { exclude: ['password'] },
 		});
 	}
 

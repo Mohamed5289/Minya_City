@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User, RefreshToken } = require('../models'); // Sequelize model
 const UserRepository = require('../repositories/user-repository');
-const RefreshTokenRepository = require('../repositories/refreshToken-repository');
-
+const RefreshTokenRepository = require('../repositories/refresh-token-repository');
 const UserService = require('../services/user-serivce');
 const RefreshTokenService = require('../services/refresh-service');
 
@@ -24,18 +23,17 @@ const refreshTokenService = new RefreshTokenService(
 );
 const userController = new UserController(userService, refreshTokenService);
 
-router.route('/').get(userController.getAllUsers);
+router.route('/').get(userController.paginateUsers);
+router.route('/one').get(userController.getUserByUsername);
 router.route('/refreshToken/t').get(userController.refreshToken);
-
-router.route('/login').post(userController.loginUser);
-router.route('/register').post(upload.single('avatar'), userController.addUser);
-router.route('/email/:email').get(userController.getUserByEmail);
-router.route('/username/:username').get(userController.getUserByUsername);
-router.route('/paginate').get(userController.paginateUsers);
+router.route('/signOut').get(userController.signout);
 router
 	.route('/:id')
 	.get(userController.getUserById)
 	.put(userController.updateUser)
 	.delete(userController.deleteUser);
+
+router.route('/login').post(userController.loginUser);
+router.route('/register').post(upload.single('avatar'), userController.addUser);
 
 module.exports = router;

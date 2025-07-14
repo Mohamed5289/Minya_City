@@ -6,8 +6,8 @@ class UserService {
 		this.refreshTokenRepository = refreshTokenRepository;
 	}
 	async addUser(userData) {
-		const existingUser = await this.userRepository.getUserByEmail(
-			userData.email,
+		const existingUser = await this.userRepository.getUserByUsername(
+			userData.username,
 		);
 		if (existingUser) return null;
 		const hashedPassword = await hash.hashPassword(userData.password);
@@ -27,21 +27,10 @@ class UserService {
 
 		return user;
 	}
-	async getAllUsers() {
-		const users = await this.userRepository.getAllUsers();
-		return users || null;
-	}
-
-	async getUserByEmail(email) {
-		const user = await this.userRepository.getUserByEmail(email);
-		return user || null;
-	}
-
 	async getUserByUsername(username) {
 		const user = await this.userRepository.getUserByUsername(username);
 		return user || null;
 	}
-
 	async updateUser(userId, updatedData) {
 		const user = await this.userRepository.getUserById(userId);
 		if (!user) return null;
@@ -58,6 +47,13 @@ class UserService {
 			limit,
 		);
 		return paginationResult || null;
+	}
+	async signout(refreshToken) {
+		const token = await this.refreshTokenRepository.getToken(refreshToken);
+		if (!token) {
+			throw new Error('Invalid or expired refresh token');
+		}
+		return await this.refreshTokenRepository.revokeToken(token);
 	}
 }
 

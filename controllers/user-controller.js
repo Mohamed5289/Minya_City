@@ -11,8 +11,6 @@ class UserController {
 
 		this.addUser = asyncWrapper(this.addUser.bind(this));
 		this.getUserById = asyncWrapper(this.getUserById.bind(this));
-		this.getAllUsers = asyncWrapper(this.getAllUsers.bind(this));
-		this.getUserByEmail = asyncWrapper(this.getUserByEmail.bind(this));
 		this.updateUser = asyncWrapper(this.updateUser.bind(this));
 		this.deleteUser = asyncWrapper(this.deleteUser.bind(this));
 		this.paginateUsers = asyncWrapper(this.paginateUsers.bind(this));
@@ -108,9 +106,34 @@ class UserController {
 		);
 	}
 
+	async signout(req, res, next) {
+		const token = req.cookies.refreshToken;
+		if (!token) {
+			return next(
+				new ErrorApp(
+					401,
+					'Refresh token not found in cookies',
+					httpStatusText.FAIL,
+				),
+			);
+		}
+		await this.userServices.signout(token);
+
+		res.clearCookie('refreshToken', {
+			httpOnly: true,
+			secure: true,
+			sameSite: 'Strict',
+		});
+		sendResponse(
+			res,
+			200,
+			httpStatusText.SUCCESS,
+			null,
+			'Signed out successfully',
+		);
+	}
 	async refreshToken(req, res, next) {
 		const token = req.cookies.refreshToken;
-		console.log('DEBUG: token = ', token);
 		if (!token) {
 			return next(
 				new ErrorApp(401, 'No refresh token provided', httpStatusText.FAIL),
@@ -151,40 +174,8 @@ class UserController {
 		);
 	}
 
-	async getAllUsers(req, res, next) {
-		const users = await this.userServices.getAllUsers();
-
-		if (!users || users.length === 0) {
-			return next(new ErrorApp(404, 'No users found', httpStatusText.FAIL));
-		}
-		sendResponse(
-			res,
-			200,
-			httpStatusText.SUCCESS,
-			users,
-			'Users retrieved successfully',
-		);
-	}
-
-	async getUserByEmail(req, res, next) {
-		const email = req.params.email;
-		const user = await this.userServices.getUserByEmail(email);
-
-		if (!user) {
-			return next(new ErrorApp(404, 'User not found', httpStatusText.FAIL));
-		}
-
-		sendResponse(
-			res,
-			200,
-			httpStatusText.SUCCESS,
-			user,
-			'User retrieved successfully',
-		);
-	}
-
 	async getUserByUsername(req, res, next) {
-		const username = req.params.username;
+		const { username } = req.query;
 		const user = await this.userServices.getUserByUsername(username);
 
 		if (!user) {
