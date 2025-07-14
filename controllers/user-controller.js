@@ -18,6 +18,7 @@ class UserController {
 		this.paginateUsers = asyncWrapper(this.paginateUsers.bind(this));
 		this.loginUser = asyncWrapper(this.loginUser.bind(this));
 		this.refreshToken = asyncWrapper(this.refreshToken.bind(this));
+		this.getUserByUsername = asyncWrapper(this.getUserByUsername.bind(this));
 	}
 
 	async createJwtTokenAndRefreshToken(payload) {
@@ -168,6 +169,23 @@ class UserController {
 	async getUserByEmail(req, res, next) {
 		const email = req.params.email;
 		const user = await this.userServices.getUserByEmail(email);
+
+		if (!user) {
+			return next(new ErrorApp(404, 'User not found', httpStatusText.FAIL));
+		}
+
+		sendResponse(
+			res,
+			200,
+			httpStatusText.SUCCESS,
+			user,
+			'User retrieved successfully',
+		);
+	}
+
+	async getUserByUsername(req, res, next) {
+		const username = req.params.username;
+		const user = await this.userServices.getUserByUsername(username);
 
 		if (!user) {
 			return next(new ErrorApp(404, 'User not found', httpStatusText.FAIL));

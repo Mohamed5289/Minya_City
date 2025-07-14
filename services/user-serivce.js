@@ -37,6 +37,11 @@ class UserService {
 		return user || null;
 	}
 
+	async getUserByUsername(username) {
+		const user = await this.userRepository.getUserByUsername(username);
+		return user || null;
+	}
+
 	async updateUser(userId, updatedData) {
 		const user = await this.userRepository.getUserById(userId);
 		if (!user) return null;

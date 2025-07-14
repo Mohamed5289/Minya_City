@@ -25,6 +25,12 @@ class UserRepository {
 		});
 	}
 
+	async getUserByUsername(username) {
+		return await this.User.findOne({
+			where: { username: username },
+		});
+	}
+
 	async updateUser(userId, updatedData) {
 		return await this.User.update(updatedData, {
 			where: { id: userId },

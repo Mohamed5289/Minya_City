@@ -30,6 +30,7 @@ router.route('/refreshToken/t').get(userController.refreshToken);
 router.route('/login').post(userController.loginUser);
 router.route('/register').post(upload.single('avatar'), userController.addUser);
 router.route('/email/:email').get(userController.getUserByEmail);
+router.route('/username/:username').get(userController.getUserByUsername);
 router.route('/paginate').get(userController.paginateUsers);
 router
 	.route('/:id')
