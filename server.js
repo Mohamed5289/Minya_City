@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user-route');
 const refreshTokenRoutes = require('./routes/refreshToken-route');
 const httpStatusText = require('./utils/httpStatusText');
 const cookieParser = require('cookie-parser');
+require('dotenv').config();
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
